@@ -1,7 +1,7 @@
-from fastapi import FastAPI,Depends
+from fastapi import FastAPI,Depends, HTTPException
 import pymysql
 from MySQL.config import HOST,PASSWORD, USER, DATABASE
-from MySQL.database import connect, read_db
+from MySQL.database import connect, read_db, filter_db_max, add_product, filter_db_min
 from handlers.admin import verify_admin
 from handlers.models import products
 
@@ -13,4 +13,16 @@ def connect_db():
 @app.get("/product")
 def product(admin: str = Depends(verify_admin)):
     return read_db()
+
+@app.get("/filter(max_price)")
+def filter(price: str):
+    return filter_db_max()
+
+@app.get("/filter(min_price)")
+def filter(price: str):
+    return filter_db_min()
+
+@app.post("/add_product")
+def add_to_db(item: products):
+    return add_product(item)
 

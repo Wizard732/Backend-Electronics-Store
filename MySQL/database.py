@@ -1,3 +1,6 @@
+from http.client import HTTPException
+from multiprocessing import connection
+
 import pymysql
 from MySQL.config import HOST,PASSWORD,USER,DATABASE
 from handlers.models import products
@@ -30,3 +33,51 @@ def read_db():
             connection.close() # закрываем бд только если было подключение
 
 
+def filter_db_max():
+    connection = connect()
+    if not connection:
+        return {"error":"Не удалось подключится к БД"}
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM product WHERE price >= 500") # выводим данные с бд только если фильтр стоит выше 500
+            rows = cursor.fetchall()
+            return rows
+    finally:
+        if connection:
+            connection.close() # закрываем бд только если было подключение
+
+
+def filter_db_min():
+    connection = connect()
+    if not connection:
+        return {"error":"Не удалось подключится к БД"}
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM product WHERE price < 500") # выводим данные с бд только если фильтр стоит выше 500
+            rows = cursor.fetchall()
+            return rows
+    finally:
+        if connection:
+            connection.close() # закрываем бд только если было подключение
+
+
+def add_product(item: products):
+    connection = connect()
+    if not connection:
+        return {"error":"Не удалось подключится к БД"}
+
+    try:
+        with connection.cursor() as cursor:
+            sql = "INSERT INTO product (title,category,brand,price,stock_quantity,is_available) VALUES (%s, %s, %s, %s, %s, %s)"
+            values = (item.title,item.category,item.brand,item.price,item.stock_quantity,item.is_available)
+
+            cursor.execute(sql,values) # добавляем данные в бд
+            connection.commit()
+            return {"message": "Данные успешно записаны в БД"}
+    except Exception as e:
+        return {"error": f"Ошибка при добавлении данных {e}"}
+    finally:
+        if connection:
+            connection.close()
