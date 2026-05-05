@@ -1,7 +1,7 @@
 from fastapi import FastAPI,Depends, HTTPException
 import pymysql
 from MySQL.config import HOST,PASSWORD, USER, DATABASE
-from MySQL.database import connect, read_db, filter_db_max, add_product, filter_db_min
+from MySQL.database import connect, read_db, filter_db_max, add_product, filter_db_min, delete
 from handlers.admin import verify_admin
 from handlers.models import products
 
@@ -25,4 +25,11 @@ def filter(price: str):
 @app.post("/add_product")
 def add_to_db(item: products):
     return add_product(item)
+
+@app.delete("/delete")
+def delete_db(id: int):
+    return delete(id)
+
+
+
 

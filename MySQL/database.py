@@ -1,9 +1,9 @@
-from http.client import HTTPException
 from multiprocessing import connection
 
 import pymysql
 from MySQL.config import HOST,PASSWORD,USER,DATABASE
 from handlers.models import products
+from fastapi import HTTPException
 
 def connect():
     try:
@@ -81,3 +81,26 @@ def add_product(item: products):
     finally:
         if connection:
             connection.close()
+
+
+def delete(id: int):
+    connection = connect()
+    if not connection:
+        return {"error": "Не удалось подключится к БД"}
+
+    try:
+        with connection.cursor() as cursor:
+            sql = "DELETE FROM product WHERE id = %s"
+            cursor.execute(sql,(id,)) # удаляем из таблицы продукт айди с введеным пользователем айди
+
+            connection.commit()
+
+        return {"message": f"Данные с id - {id} успешно удалены"}
+
+    except Exception as e:
+        return {"error": f"Ошибка при удалении данных {e}"}
+    finally:
+        connection.close()
+
+
+
