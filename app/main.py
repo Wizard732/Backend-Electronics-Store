@@ -34,6 +34,6 @@ def delete_db(id: int):
 def category(category: str):
     return category_db(category)
 
-@app.post("/update_product(id)")
+@app.put("/update_product/(id)")
 def update(id: int, new_stock: int):
     return update_db(id, new_stock)

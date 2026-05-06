@@ -35,3 +35,22 @@ def test_add_product():
 
     assert result.status_code == 200
 
+
+def test_delete():
+    params = {"id": 5}
+    result = client.delete("/delete", params=params)
+
+    assert result.status_code == 200
+
+
+def test_category():
+    params = {"category": "lelele"}
+    result = client.get("/category", params=params)
+
+    assert result.status_code == 200
+
+def test_update():
+    params = {"id": 1, "new_stock": 3}
+    result = client.put("/update_product/(id)", params=params)
+
+    assert result.status_code == 200
