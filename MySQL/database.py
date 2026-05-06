@@ -1,6 +1,8 @@
 from multiprocessing import connection
 
 import pymysql
+from pip._internal.resolution.resolvelib import found_candidates
+
 from MySQL.config import HOST,PASSWORD,USER,DATABASE
 from handlers.models import products
 from fastapi import HTTPException
@@ -103,4 +105,43 @@ def delete(id: int):
         connection.close()
 
 
+def category_db(category: str ):
+    connection = connect()
+    if not connection:
+        return {"message": "Не удалось подключится к БД"}
 
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT brand FROM product WHERE category = %s"
+            cursor.execute(sql,(category,)) # если введенные данные пользователя совпадают с данными category в таблицу выводим brand
+            rows = cursor.fetchall()
+
+            return {"message": f"Товар с категорией {category} - {rows}"}
+
+    except Exception as e:
+        return {"error": f"Категория с именем - {category} не найдена {e}."}
+    finally:
+        if connection:
+            connection.close()
+
+
+def update_db(id: int, new_stock: int):
+    connection = connect()
+    if not connection:
+        return {"message": "Не удалось подключится к БД"}
+
+    try:
+        with connection.cursor() as cursor:
+            sql = "UPDATE product SET stock_quantity = %s WHERE id = %s"
+            cursor.execute(sql,(new_stock, id)) # обновляем в таблице продукт значение stock_quantity если id равно введенному id пользователя
+
+            connection.commit()
+
+            if cursor.rowcount == 0:
+                return {"error": f"Товар с id - {id} не найден"}
+            return {"message": f"Данные stock_quantity успешно обновлены на - {new_stock}!"}
+
+    except Exception as e:
+        return {"error": f"Данные не удалось обновить {e}"}
+    finally:
+        connection.close()
